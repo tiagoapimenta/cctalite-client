@@ -1,17 +1,42 @@
 #!/usr/bin/env ruby
 
+require './users.rb'
 require './game.rb'
 
-# logar
+$users.each { |user|
+	game = Game.new user['name'], user['pass']
 
-# ...se houver base destruída mover
+	game.cities.each { |city|
+		if city.destroyed? then
+			x = city.x
+			y = city.y
+			# TODO: find a unallocated near place
+			city.move x, y
+		end
 
-# colher pacotes
+		city.bases.each { |base|
+			base.collect if base.can_collect?
+		}
 
-# reparar danos na base
-# se estiver em batalha repetir até acabar a batalha
+		city.repair city.need_repair? # TODO: repeat if is until in battle
 
-# evoluir
-# se necessário gastar itens
+		city.bases.each { |base|
+			# TODO: use products if necessary
+			base.update if base.can_update? # TODO: Find weakest base first
+		}
 
-# ...se estiver com 90% ou mais dos pontos de comandos, lutar
+		city.attack_units { |unit|
+			# TODO: use products if necessary
+			unit.update if unit.can_update? # TODO: Find weakest unit first
+		}
+
+		city.defense_units { |unit|
+			# TODO: use products if necessary
+			unit.update if unit.can_update? # TODO: Find weakest unit first
+		}
+	}
+
+	if game.commands > 80 then
+		# TODO: find weakest near enemy and invoke battle
+	end
+}

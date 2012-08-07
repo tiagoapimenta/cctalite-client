@@ -9,14 +9,14 @@ class Player
 		if sumary then
 			@id = info['Id']
 			@name = info['Name']
-			@alliance = Alliance.new info, true
-			@cities = info['Cities'].map { |city| City.new city, true }
+			@alliance = Alliance.new info, true unless info['AllianceId'] == 0
+			@cities = info['Cities'].map { |city| City.new city }
 			@techs = info['Techs'].map { |tech| Tech.new tech }
 		else
 			@id = info['i']
 			@name = info['n']
-			@alliance = Alliance.new info
-			@cities = info['c'].map { |city| City.new city, true }
+			@alliance = Alliance.new info unless info['a'] == 0
+			@cities = info['c'].map { |city| City.new city }
 			@techs = nil
 		end
 	end
