@@ -3,13 +3,19 @@ require './navigator.rb'
 class Game
 	def initialize
 		@nav = Navigator.new
+		@cache = nil
+	end
+
+	def clear
+		remove_instance_variable '@sessionId' unless defined?(@sessionId).nil?
+		remove_instance_variable '@playerInfo' unless defined?(@playerInfo).nil?
+		@cache = nil
 	end
 
 	def login(user, pass)
 		@user = user
 		@pass = pass
-		remove_instance_variable '@sessionId' unless defined?(@sessionId).nil?
-		remove_instance_variable '@playerInfo' unless defined?(@playerInfo).nil?
+		clear
 
 		data = {
 			'spring-security-redirect' => '',

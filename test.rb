@@ -88,7 +88,7 @@ end
 
 first = true
 
-logins.each { |login|
+$logins.each { |login|
 	puts 'Troca' unless first
 	first = false
 
