@@ -10,4 +10,8 @@ class Tech
 	def unlock
 		# TODO: Unlock new tech? It shouldn't be here, maybe in game.unlock_tech
 	end
+
+	def to_s
+		'#<Tech>'
+	end
 end

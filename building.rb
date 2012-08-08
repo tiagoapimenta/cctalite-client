@@ -1,5 +1,7 @@
 class Building
-	attr_reader :id, :level, :type, :x, :y, :can_collect?, :can_upgrade?
+	# TODO: types
+
+	attr_reader :id, :level, :type, :x, :y
 
 	def initialize(game, city, info)
 		@game = game
@@ -9,8 +11,14 @@ class Building
 		@type = info['t']
 		@x = info['x']
 		@y = info['y']
-		@can_collect? = info['rv'] != 0 # TODO: How to know when is it collectable?
-		@can_upgrade? = true # TODO: How to know when is it updateable?
+	end
+
+	def can_collect?
+		info['rv'] != 0 # TODO: How to know when is it collectable?
+	end
+
+	def can_upgrade?
+		true # TODO: How to know when is it updateable?
 	end
 
 	def collect
@@ -27,5 +35,9 @@ class Building
 
 	def destroy
 		@game.command 'DemolishBuilding', {'cityid' => @city.id, 'posX' => @x, 'posY' => @y}
+	end
+
+	def to_s
+		'#<Building>'
 	end
 end

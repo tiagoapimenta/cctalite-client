@@ -7,6 +7,7 @@ class Navigator
 	def initialize
 		@cookies = {}
 	end
+
 	def save_cookies(uri, cookies)
 		cookies.each { |cookie|
 			key = ''
@@ -42,6 +43,7 @@ class Navigator
 			}
 		}
 	end
+
 	def get_cookies(uri)
 		cookies = []
 		@cookies.each { |domain, keys|
@@ -53,6 +55,7 @@ class Navigator
 		}
 		cookies.join '; '
 	end
+
 	def go(url, data = nil, limit = 10)
 		uri = URI.parse url
 		http = Net::HTTP.new uri.host, uri.port
@@ -78,5 +81,9 @@ class Navigator
 		save_cookies(uri, cookies) unless cookies.nil?
 		response = go(response['location'], nil, limit - 1) if response.is_a? Net::HTTPRedirection
 		response
+	end
+
+	def to_s
+		'#<Navigator>'
 	end
 end

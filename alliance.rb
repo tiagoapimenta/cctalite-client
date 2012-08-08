@@ -4,7 +4,7 @@ class Alliance
 	def initialize(game, info, sumary = false)
 		@game = game
 		if sumary then
-			if info.respond_to? 'AllianceId' then
+			if info.key? 'AllianceId' then
 				@id = info['AllianceId']
 				@name = info['AllianceName']
 			else
@@ -22,5 +22,9 @@ class Alliance
 		@name = info['n']
 		@acronym = info['a']
 		@description = info['d']
+	end
+
+	def to_s
+		'#<Alliance>'
 	end
 end

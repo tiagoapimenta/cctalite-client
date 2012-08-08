@@ -1,5 +1,7 @@
 class Unit
-	attr_reader :id, :level, :type, :x, :y, :attack?, :can_upgrade?
+	# TODO: types
+
+	attr_reader :id, :level, :type, :x, :y
 
 	def initialize(game, city, info)
 		@game = game
@@ -9,8 +11,14 @@ class Unit
 		@type = info['ui']
 		@x = info['cx']
 		@y = info['cy']
-		@attack? =  @type > 96 # TODO: How to know if is it a offensive unit?
-		@can_upgrade? = true # TODO: How to know when is it updateable?
+	end
+
+	def attack?
+		@type > 96 # TODO: How to know if is it a offensive unit?
+	end
+
+	def can_upgrade?
+		true # TODO: How to know when is it updateable?
 	end
 
 	def upgrade
@@ -23,5 +31,9 @@ class Unit
 
 	def destroy
 		@game.command 'UnitDismiss', {'cityid' => @city.id, 'unitId' => @id}
+	end
+
+	def to_s
+		'#<Unit>'
 	end
 end

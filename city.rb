@@ -2,12 +2,12 @@ require './building.rb'
 require './unit.rb'
 
 class City
-	REPAIR_BUILDINGS    = 1
-	REPAIR_DEFENSE = 2
-	REPAIR_ATTACK  = 4
-	REPAIR_ALL     = REPAIR_BUILDINGS | REPAIR_DEFENSE | REPAIR_ATTACK
+	REPAIR_BUILDINGS = 1
+	REPAIR_DEFENSE   = 2
+	REPAIR_ATTACK    = 4
+	REPAIR_ALL       = REPAIR_BUILDINGS | REPAIR_DEFENSE | REPAIR_ATTACK
 
-	attr_reader :id, :name, :level, :owner_id, :x, :y, :destroyed?, :need_repair?
+	attr_reader :id, :name, :level, :owner_id, :x, :y
 	def initialize(game, info)
 		@game = game
 		@id = info['i']
@@ -20,8 +20,6 @@ class City
 		@level = info['lv'] if info.key? 'lv'
 		@x = info['x']
 		@y = info['y']
-		@destroyed? = false # TODO: How to know when is it destroyed?
-		@need_repair? = true # TODO: How to know when does it need to repair?
 		@owner_id = info['o'] if info.key? 'o'
 		@buildings = info['b'].map { |building| Building.new @game, self, building } if info.key? 'b'
 		@units = info['u'].map { |unit| Unit.new @game, self, unit } if info.key? 'u'
@@ -45,6 +43,14 @@ class City
 		units.delete_if { |unit| unit.attack? }
 	end
 
+	def destroyed?
+		false # TODO: How to know when is it destroyed?
+	end
+
+	def need_repair?
+		true # TODO: How to know when does it need to repair?
+	end
+
 	def move(x, y)
 		@game.command('CityMove', {'cityId' => @id, 'coordX' => x, 'coordY' => y})
 	end
@@ -58,6 +64,10 @@ class City
 	# crete_building CreateBuilding
 
 	# create_unit StartUnitProduction
+
+	def to_s
+		'#<City>'
+	end
 
 	private
 	def raw_repair(mode, entity)
