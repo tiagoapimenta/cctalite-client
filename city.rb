@@ -1,11 +1,11 @@
-require './base.rb'
+require './building.rb'
 require './unit.rb'
 
 class City
-	REPAIR_BASE    = 1
+	REPAIR_BUILDINGS    = 1
 	REPAIR_DEFENSE = 2
 	REPAIR_ATTACK  = 4
-	REPAIR_ALL     = REPAIR_BASE | REPAIR_DEFENSE | REPAIR_ATTACK
+	REPAIR_ALL     = REPAIR_BUILDINGS | REPAIR_DEFENSE | REPAIR_ATTACK
 
 	attr_reader :id, :name, :level, :owner_id, :x, :y, :destroyed?, :need_repair?
 	def initialize(game, info)
@@ -23,18 +23,18 @@ class City
 		@destroyed? = false # TODO: How to know when is it destroyed?
 		@need_repair? = true # TODO: How to know when does it need to repair?
 		@owner_id = info['o'] if info.key? 'o'
-		@bases = info['b'].map { |base| Base.new base } if info.key? 'b'
-		@units = info['u'].map { |unit| Unit.new unit } if info.key? 'u'
+		@buildings = info['b'].map { |building| Building.new @game, self, building } if info.key? 'b'
+		@units = info['u'].map { |unit| Unit.new @game, self, unit } if info.key? 'u'
 	end
 
-	def bases
-		@game.update_city self if @bases.nil?
-		@bases
+	def buildings
+		@game.update_city self if @buildings.nil?
+		@buildings
 	end
 
 	def units
-		@game.update_city self if @bases.nil?
-		@bases
+		@game.update_city self if @units.nil?
+		@units
 	end
 
 	def attack_units
@@ -50,10 +50,14 @@ class City
 	end
 
 	def repair(mode = REPAIR_ALL, entity = nil)
-		raw_repair 1, (entity.nil? && -1 || entity.id) unless mode & REPAIR_BASE == 0
+		raw_repair 1, (entity.nil? && -1 || entity.id) unless mode & REPAIR_BUILDINGS == 0
 		raw_repair 5, (entity.nil? && -1 || entity.id) unless mode & REPAIR_DEFENSE == 0
 		raw_repair 4, (entity.nil? && -1 || entity.id) unless mode & REPAIR_ATTACK == 0
 	end
+
+	# crete_building CreateBuilding
+
+	# create_unit StartUnitProduction
 
 	private
 	def raw_repair(mode, entity)

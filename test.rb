@@ -93,4 +93,4 @@ $logins.each { |login|
 	bot login['user'], login['pass']
 }
 
-puts 'FIM'
+puts 'FINISH'

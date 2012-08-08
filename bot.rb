@@ -14,15 +14,15 @@ $users.each { |user|
 			city.move x, y
 		end
 
-		city.bases.each { |base|
-			base.collect if base.can_collect?
+		city.buildings.each { |building|
+			building.collect if building.can_collect?
 		}
 
 		city.repair city.need_repair? # TODO: repeat if is until in battle
 
-		city.bases.each { |base|
+		city.buildings.each { |building|
 			# TODO: use products if necessary
-			base.upgrade if base.can_upgrade? # TODO: Find weakest base first
+			building.upgrade if building.can_upgrade? # TODO: Find weakest building first
 		}
 
 		city.attack_units { |unit|
