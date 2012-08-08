@@ -4,7 +4,7 @@ require './game.rb'
 
 require './logins.rb'
 
-@@orderBuilding = [1, 5, 16, 32, 10, 42, 40, 34, 35, 36, 24, 2, 81, 82]
+@@orderBuilding = [5, 32, 1, 16, 10, 42, 40, 34, 35, 36, 24, 2, 81, 82]
 @@orderUnitAttack = [81, 88, 86, 87, 98, 94, 92]
 @@orderUnitDefense = [102, 98, 101]
 @@orderUnitBuilding = [101]
@@ -66,7 +66,7 @@ def bot login, password
 		cities = r['d']['c'] if r['t'] == 'CITIES'
 	}
 	cities.each { |city|
-		puts "City #{city['i']}"
+		puts "City #{city['i']}: #{city['n']}"
 		@g.repairBase city['i']
 		@g.repairDefense city['i']
 		@g.repairAttack city['i']
@@ -86,10 +86,8 @@ def bot login, password
 	}
 end
 
-first = true
-
 $logins.each { |login|
-	puts 'Troca' unless first
+	puts "User #{login['user']}"
 	first = false
 
 	bot login['user'], login['pass']

@@ -22,21 +22,21 @@ $users.each { |user|
 
 		city.bases.each { |base|
 			# TODO: use products if necessary
-			base.update if base.can_update? # TODO: Find weakest base first
+			base.upgrade if base.can_upgrade? # TODO: Find weakest base first
 		}
 
 		city.attack_units { |unit|
 			# TODO: use products if necessary
-			unit.update if unit.can_update? # TODO: Find weakest unit first
+			unit.upgrade if unit.can_upgrade? # TODO: Find weakest unit first
 		}
 
 		city.defense_units { |unit|
 			# TODO: use products if necessary
-			unit.update if unit.can_update? # TODO: Find weakest unit first
+			unit.upgrade if unit.can_upgrade? # TODO: Find weakest unit first
 		}
 	}
 
-	if game.commands > 80 then
+	if game.command_points > 80 then
 		# TODO: find weakest near enemy and invoke battle
 	end
 }
