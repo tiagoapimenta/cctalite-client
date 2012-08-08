@@ -38,9 +38,8 @@ end
 def upgradeBuilding(city)
 	loop {
 		base = pushWeakestBuilding city['b']
-		print "Building #{base['x']}x#{base['y']}: #{base['l']} (#{base['t']}) "
 		res = @g.upgradeBuilding city['i'], base['x'], base['y']
-		puts (res.respond_to?('key?') && res.key?('r') && res['r'] && 'OK' || 'ERR')
+		puts "Building #{base['x']}x#{base['y']}: #{base['l']} (#{base['t']})" if res['r']
 		break unless res['r']
 		city = res['u'][0]['d']
 	}
@@ -49,9 +48,8 @@ end
 def upgradeUnit(city, attack = true, building = false)
 	loop {
 		unit = pushWeakestUnit city['u'], attack, building
-		print "Unit #{unit['i']}: #{unit['cl']} (#{unit['ui']}) "
 		res = @g.unitUpgrade city['i'], unit['i']
-		puts (res.respond_to?('key?') && res.key?('r') && res['r'] && 'OK' || 'ERR')
+		puts "Unit #{unit['i']}: #{unit['cl']} (#{unit['ui']})" if res['r']
 		break unless res['r']
 		city = res['u'][0]['d']
 	}
@@ -67,15 +65,11 @@ def bot login, password
 	}
 	cities.each { |city|
 		puts "City #{city['i']}: #{city['n']}"
-		@g.repairBase city['i']
-		@g.repairDefense city['i']
-		@g.repairAttack city['i']
+		puts 'Base repaired' if @g.repairBase(city['i'])['r']
+		puts 'Defense repaired' if @g.repairDefense(city['i'])['r']
+		puts 'Attack repaired' if @g.repairAttack(city['i'])['r']
 		city['b'].each { |block|
-			if block['rd'] != 0 then
-				print "Collect #{block['x']}x#{block['y']} (#{block['rv'].to_i}) "
-				r = @g.collectResource city['i'], block['x'], block['y']
-				puts (r.respond_to?('key?') && r.key?('r') && r['r'] && 'OK' || 'ERR')
-			end
+			puts "Collect #{block['x']}x#{block['y']} (#{block['rv'].to_i})" if block['rd'] != 0 && @g.collectResource(city['i'], block['x'], block['y'])['r']
 		}
 
 		upgradeBuilding city
@@ -88,7 +82,6 @@ end
 
 $logins.each { |login|
 	puts "User #{login['user']}"
-	first = false
 
 	bot login['user'], login['pass']
 }
