@@ -2,7 +2,7 @@ require './navigator.rb'
 require './player.rb'
 require './alliance.rb'
 # TODO: Reports | Messages -> GetReportHeaderBaseCount | GetReportHeaderBase | GetReportData | NotificationGetSingle | GetCombatData
-# TODO: alliances -> GetPublicAllianceInfo | AllianceInvite | PlayerGetInvitations | AllianceGetMemberData | AllianceSetMemberRole | AllianceDisband | AllianceLeave | AllianceInviteAccept | AllianceCreate
+# TODO: alliances -> GetPublicAllianceInfo
 # TODO: player -> GetPublicPlayerInfoByName | GetPublicPlayerInfo
 # TODO: city -> ajax 'GetPublicCityInfoById', {'session' => @session, 'id'=> id}
 
@@ -130,6 +130,65 @@ class Game
 		command 'CityFound', {'name' => name, 'coordX' => x, 'coordY' => y}
 	end
 
+	def create_alliance(name, tag)
+		open_session if @session.nil?
+		res = ajax 'AllianceCreate', {'session' => @session, 'name' => name, 'tag' => tag}
+		unless res.is_a? Hash then
+			open_session
+			res = create_alliance name, tag
+		end
+		res # TODO: res['i'] -> new alliance id
+	end
+
+	def join_alliance(alliance)
+		open_session if @session.nil?
+		invite_id = -1
+		player_invitations.each { |invitation|
+			if invitation['j'] == alliance.id then
+				invite_id = invitation['i']
+				break
+			end
+		}
+		res = ajax 'AllianceInviteAccept', {'session' => @session, 'invitationId' => invite_id, 'allianceId' => alliance.id}
+		if res.is_a? Hash then
+			res['r'] == 0
+		else
+			open_session
+			join_alliance alliance
+		end
+	end
+
+	def leave_alliance
+		open_session if @session.nil?
+		res = ajax 'AllianceLeave', {'session' => @session}
+		unless res.is_a? String then
+			open_session
+			res = leave_alliance
+		end
+		res.to_i == 0
+	end
+
+	def destroy_alliance
+		open_session if @session.nil?
+		res = ajax 'AllianceDisband', {'session' => @session}
+		unless res.is_a? String then
+			open_session
+			res = destroy_alliance
+		end
+		res.to_i == 0
+	end
+
+	def alliance_invite_player(player, alliance = nil)
+		alliance ||= me.alliance
+		open_session if @session.nil?
+		res = ajax 'AllianceInvite', {'session' => @session, 'inviteeName' => player.name}
+		unless res.is_a? String then
+			open_session
+			res = alliance_invite_player player, alliance
+		end
+		res.to_i == 0
+	end
+
 	def mission_reward(mission, city = nil)
 		city ||= me.cities[0]
 		open_session if @session.nil?
@@ -155,6 +214,7 @@ class Game
 		@session = nil
 		@command_points = 0
 
+		# TODO: Perhaps I should use nokogiri instead, I'll think about it later.
 		raise 'Login or password wrong.' if @navigator.go('https://alliances.commandandconquer.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}).body.include? 'loginForm'
 		res = @navigator.go 'https://alliances.commandandconquer.com/pt_BR/game/launch'
 
@@ -199,6 +259,17 @@ class Game
 	def player_info
 		open_session if @session.nil?
 		res = ajax 'GetPlayerInfo', {'session' => @session}
+		if res.is_a? Hash then
+			res
+		else
+			open_session
+			player_info
+		end
+	end
+
+	def player_invitations
+		open_session if @session.nil?
+		res = ajax 'PlayerGetInvitations', {'session' => @session}
 		if res.is_a? Hash then
 			res
 		else

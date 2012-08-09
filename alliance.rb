@@ -1,4 +1,4 @@
-class Alliance
+class Alliance # TODO: GetPublicAllianceInfo | AllianceGetMemberData | AllianceSetMemberRole
 	attr_reader :id, :name, :acronym, :description
 
 	def initialize(game, info, sumary = false)
@@ -22,6 +22,18 @@ class Alliance
 		@name = info['n']
 		@acronym = info['a']
 		@description = info['d']
+	end
+
+	def invite(player)
+		@game.alliance_invite_player player, self
+	end
+
+	def leave
+		@game.leave_alliance
+	end
+
+	def destroy
+		@game.destroy_alliance
 	end
 
 	def to_s
