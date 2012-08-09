@@ -1,6 +1,10 @@
 require './navigator.rb'
 require './player.rb'
 require './alliance.rb'
+# TODO: Reports | Messages -> GetReportHeaderBaseCount | GetReportHeaderBase | GetReportData | NotificationGetSingle | GetCombatData
+# TODO: alliances -> GetPublicAllianceInfo | AllianceInvite | PlayerGetInvitations | AllianceGetMemberData | AllianceSetMemberRole | AllianceDisband | AllianceLeave | AllianceInviteAccept | AllianceCreate
+# TODO: player -> GetPublicPlayerInfoByName | GetPublicPlayerInfo
+# TODO: city -> ajax 'GetPublicCityInfoById', {'session' => @session, 'id'=> id}
 
 class Game
 	MAX_TRIES = 10
@@ -84,7 +88,7 @@ class Game
 	end
 
 	def update_city(city)
-		poll ["OCITY:#{city.id}"]
+		poll ["OCITY:#{city.id}:-1"]
 	end
 
 	def command(method, data, request = false) # TODO: make it protected, friendly for player, alliance, city, building, unit, etc
@@ -110,7 +114,32 @@ class Game
 	end
 
 	def poll(requests) # TODO: check if is necessary to be private
+		# Samples: "UA", "WC:A", "TIME:#{(Time.new.to_f * 1000).floor}", "CHAT:", "WORD:", "GIFT:", "ACS:999", "ASS:99", "CAT:1", "ABW:5555555:0", "OCITY:5555555:5"
 		command 'Poll', {'requests' => requests.join("\f")}, true
+	end
+
+	def unlock_tech(type)
+		command 'UnlockTech', {'mdbtechid' => type}
+	end
+
+	def battle
+		# TODO: command 'InvokeBattle', {'battleSetup' => {'d' => Fixnum, 'a' => Fixnum, 'u' => [{'i' => unity.id, 'x' => x, 'y' => y}, ...], 's' => 0}}
+	end
+
+	def create_city(name, x, y)
+		command 'CityFound', {'name' => name, 'coordX' => x, 'coordY' => y}
+	end
+
+	def mission_reward(mission, city = nil)
+		city ||= me.cities[0]
+		open_session if @session.nil?
+		res = ajax 'ClaimMissionStepReward', {'session' => @session, 'cityid' => city.id, 'missionStepId' => mission}
+		if res.is_a? Hash then
+			res
+		else
+			open_session
+			mission_reward mission, city
+		end
 	end
 
 	def to_s
@@ -126,7 +155,7 @@ class Game
 		@session = nil
 		@command_points = 0
 
-		@navigator.go 'https://alliances.commandandconquer.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}
+		raise 'Login or password wrong.' if @navigator.go('https://alliances.commandandconquer.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}).body.include? 'loginForm'
 		res = @navigator.go 'https://alliances.commandandconquer.com/pt_BR/game/launch'
 
 		@login_session = res.body[/sessionId.*>/][/value=".*"/][7..-2]
@@ -178,10 +207,44 @@ class Game
 		end
 	end
 
+	def server_info
+		open_session if @session.nil?
+		res = ajax 'GetServerInfo', {'session' => @session}
+		if res.is_a? Hash then
+			res
+		else
+			open_session
+			player_info
+		end
+	end
+
+	def notification_range(take = 50)
+		open_session if @session.nil?
+		res = ajax 'NotificationGetRange', {'session' => @session, 'category' => 0, 'skip' => 0, 'take' => take, 'sortOrder' => 1, 'ascending' => false}
+		if res.is_a? Array then
+			res
+		else
+			open_session
+			player_info
+		end
+	end
+
+	def incentive_rewards
+		open_session if @session.nil?
+		res = ajax 'GetIncentiveRewards', {'session' => @session}
+		unless res.is_a? Fixnum || res.nil? then
+			res
+		else
+			open_session
+			player_info
+		end
+	end
+
 	def command_response(type, data)
 		case type
 			when 'SYS'
-				@logged = false if data == 'CLOSED' || data == 'LOGOUT' # TODO: log if different
+				raise "Unknown system call, please report the developer about \"#{data}\" call." unless data == 'CLOSED' || data == 'LOGOUT'
+				@logged = false
 			when 'PLAYER'
 				find_player data
 			when 'PLAYERTECH'
@@ -193,7 +256,7 @@ class Game
 			when 'OCITY'
 				find_city data
 			else
-				# TODO: log unknowed command
+				# TODO: log unknown commands
 		end
 	end
 end

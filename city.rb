@@ -61,9 +61,41 @@ class City
 		raw_repair 4, (entity.nil? && -1 || entity.id) unless mode & REPAIR_ATTACK == 0
 	end
 
-	# crete_building CreateBuilding
+	def crete_building(type, x, y)
+		@game.command 'CreateBuilding', {'cityid' => @id, 'posX' => x, 'posY' => y, 'type' => type, 'isPaid' => true}
+	end
 
-	# create_unit StartUnitProduction
+	def create_unit(type, x, y)
+		@game.command 'StartUnitProduction', {'cityid' => @id, 'unitId' => type, 'coordX' => x, 'coordY' => y}
+	end
+
+	def trade(city, type, amount) # TODO: Enumarate resource_type
+		@game.command 'SelfTrade', {'targetCityId' => @id, 'sourceCityId' => city.id, 'resourceType' => type, 'amount' => amount}
+	end
+
+	def trade_tiberium(city, amount)
+		trade city, 1, amount
+	end
+
+	def trade_cristals(city, amount)
+		trade city, 2, amount
+	end
+
+	def use_product(product)
+		@game.command 'UseProduct', {'cityId' => @id, 'productId' => product}
+	end
+
+	def mission_reward(mission)
+		@game.mission_reward mission, self
+	end
+
+	def rename(name)
+		@game.command 'CityRename', {'cityId' => @id, 'name' => name}
+	end
+
+	def support(city)
+		@game.command 'SetDedicatedSupport', {'sourceBaseId' => @id, 'targetBaseId' => city.id}
+	end
 
 	def to_s
 		'#<City>'
