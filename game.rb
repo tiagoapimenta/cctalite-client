@@ -28,7 +28,58 @@ class Game
 		@alliances.key?(id) && @alliances[id] || Alliance.new(@game, info, sumary)
 	end
 
-	# TODO: find_player, find_city...
+	def find_player(info)
+		id = info['i']
+		player = (me.id == id) && me || @players.key?(id) && @players[id] || nil
+
+		if player.nil? then
+			@players[id] = Player.new self, info
+		else
+			player.update info
+		end
+
+		@unallocated_cities.delete_if { |city|
+			if city.owner_id == player.id then
+				player.add_city city
+				true
+			else
+				false
+			end
+		}
+
+		player
+	end
+
+	def find_city(info)
+		id = info['i']
+		player = info.key?('o') && ((me.id == info['o']) && me || @players.key?(info['o']) && @players[info['o']] || nil) || nil
+		city = nil
+
+		if player then
+			player.cities.each { |player_city|
+				if player_city.id == id then
+					city = player_city
+					break
+				end
+			}
+		else
+			@unallocated_cities.each { |local_city|
+				if local_city.id == id then
+					city = local_city
+					break
+				end
+			}
+		end
+
+		if city.nil? then
+			city = City.new self, info
+			player.add_city city unless player.nil?
+		else
+			city.update info
+		end
+
+		city
+	end
 
 	def update_city(city)
 		poll ["OCITY:#{city.id}"]
@@ -129,53 +180,15 @@ class Game
 			when 'SYS'
 				@logged = false if data == 'CLOSED' || data == 'LOGOUT' # TODO: log if different
 			when 'PLAYER'
-				id = data['i']
-				player = (me.id == id) && me || @players.key?(id) && @players[id] || nil
-
-				if player.nil? then
-					@players[id] = Player.new self, data
-				else
-					player.update data
-				end
-
-				@unallocated_cities.delete_if! { |city|
-					if city.owner_id == player.id then
-						player.add_city city
-						true
-					else
-						false
-					end
-				}
+				find_player data
 			when 'PLAYERTECH'
 				me.update_techs data
 			when 'CITIES'
-				data.each { |city| command_response 'CITY', city }
+				data['c'].each { |city| command_response 'CITY', city } if data['c'].is_a? Array
 			when 'CITY'
-				id = data['i']
-				player = nil
-				city = nil
-				if info.key?('o') && @players.key?(data['o']) then
-					player = @players[data['o']]
-					player.cities.each { |player_city|
-						if player_city.id == id then
-							city = player_city
-							break
-						end
-					}
-				else
-					@unallocated_cities.each { |local_city|
-						if local_city.id == id then
-							city = local_city
-							break
-						end
-					}
-				end
-				if city.nil? then
-					city = City.new self, data
-					player.add_city city unless player.nil?
-				else
-					city.update data
-				end
+				find_city({'o' => me.id}.merge data)
+			when 'OCITY'
+				find_city data
 			else
 				# TODO: log unknowed command
 		end
@@ -195,7 +208,7 @@ class Game
 
 
 
-begin
+=begin
 	public
 	def initialize
 		@nav = Navigator.new
@@ -357,5 +370,5 @@ begin
 	def selfTrade(target, source, type, amount)
 		ajax 'SelfTrade', {'targetCityId' => target, 'sourceCityId' => source, 'resourceType' => type, 'amount' => amount}
 	end
-end
+=end
 end

@@ -11,7 +11,7 @@ class Player
 			@id = info['Id']
 			@name = info['Name']
 			@alliance = @game.find_alliance(info, true) unless info['AllianceId'] == 0
-			@cities = info['Cities'].map { |city| City.new @game, city }
+			@cities = info['Cities'].map { |city| @game.find_city city }
 			@techs = info['Techs'].map { |tech| Tech.new @game, tech }
 		else
 			@id = info['i']
@@ -23,7 +23,7 @@ class Player
 		raise 'Can\'t update different id' unless info['i'] == @id
 		@name = info['n']
 		@alliance = info['a'] == 0 && nil || @game.find_alliance(info, true)
-		@cities = info['c'].map { |city| City.new @game, city } if info.key? 'c'
+		@cities = info['c'].map { |city| @game.find_city city } if info.key?('c') && info['c'].is_a?(Array)
 	end
 
 	def update_techs(techs)

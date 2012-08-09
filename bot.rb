@@ -20,23 +20,22 @@ $users.each { |user|
 			puts "Collect #{building.x}x#{building.y} (#{building.type})" if building.can_collect? && building.collect
 		}
 
-		city.repair city.need_repair? # TODO: repeat if is until in battle
+		puts 'City repaired' if city.need_repair? && city.repair # TODO: repeat if is until in battle
+
+		# TODO: use products if necessary
 
 		city.buildings.each { |building|
-			# TODO: use products if necessary
 			# TODO: Find weakest building first
 			puts "Upgrade Building #{building.x}x#{building.y} (#{building.type})" if building.can_upgrade? && building.upgrade
 		}
 
 		city.attack_units { |unit|
-			# TODO: use products if necessary
 			# TODO: Find weakest unit first
 			# TODO: Separate buildings unit from tech units
 			puts "Upgrade Attack Unit #{unit.x}x#{unit.y} (#{unit.type})" if unit.can_upgrade? && unit.upgrade
 		}
 
 		city.defense_units { |unit|
-			# TODO: use products if necessary
 			# TODO: Find weakest unit first
 			puts "Upgrade Defense Unit #{unit.x}x#{unit.y} (#{unit.type})" if unit.can_upgrade? && unit.upgrade
 		}
