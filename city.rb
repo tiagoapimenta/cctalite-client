@@ -36,11 +36,11 @@ class City
 	end
 
 	def attack_units
-		units.keep_if { |unit| unit.attack? }
+		units.select { |unit| unit.attack? }
 	end
 
 	def defense_units
-		units.delete_if { |unit| unit.attack? }
+		units.reject { |unit| unit.attack? }
 	end
 
 	def destroyed?

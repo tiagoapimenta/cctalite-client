@@ -14,7 +14,7 @@ class Unit
 	end
 
 	def attack?
-		@type > 96 # TODO: How to know if is it a offensive unit?
+		@type < 96 # TODO: How to know if is it a offensive unit?
 	end
 
 	def can_upgrade?
