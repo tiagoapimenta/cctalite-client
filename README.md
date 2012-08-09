@@ -55,7 +55,7 @@ Pardon me because I don't know the original name of them:
 * 10. Power Plant;
 * 16. Acumulator;
 * 24. Command Center;
-* 32. Havester
+* 32. Havester;
 * 34. Barrack;
 * 35. Factory;
 * 36. Airport;
@@ -63,29 +63,29 @@ Pardon me because I don't know the original name of them:
 * 42. Defense Institute;
 * 81. Ion Cannon;
 * 82. Skystrike Support;
-* ?. Falcon Support?;
+* ?. Falcon Support;
 
 *Attack Units*:
 
-* 81. Snipers Squad
-* 86. Pitbull
-* 87. Hunter
-* 88. Guardian
-* 92. Paladin
-* 94. Firehawk
+* 81. Snipers Squad;
+* 86. Pitbull;
+* 87. Hunter;
+* 88. Guardian;
+* 92. Paladin;
+* 94. Firehawk;
 
 *Defense Units*:
 
-* 98. Hunter
-* 101. Guardian Cannon
-* 102. MG Nest
-* 106. Wall
+* 98. Hunter;
+* 101. Guardian Cannon;
+* 102. MG Nest;
+* 106. Wall;
 
 *Products*:
 
-* 120. Tiberium (30.000)
-* 129. Cristals (30.000)
-* 137. Energy (7.000)
-* 138. Energy (15.000)
-* 149. Credits (?)
-* 154. Command Points (12)
+* 120. Tiberium (30.000);
+* 129. Cristals (30.000);
+* 137. Energy (7.000);
+* 138. Energy (15.000);
+* 149. Credits (?);
+* 154. Command Points (12);
