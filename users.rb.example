@@ -1,0 +1,10 @@
+$users = [
+	{
+		'name' => 'name@email.com',
+		'pass' => 'password'
+	},
+	{
+		'name' => 'name2@email.com',
+		'pass' => 'password'
+	}
+]
