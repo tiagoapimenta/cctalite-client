@@ -32,7 +32,7 @@ Install
 
 You'll need Ruby, I used 1.9.2 from RVM, but it should work with 1.8.3 too.
 
-I didn't have problems with JSON with RVM, but if you do so, you'll need this
+I didn't have problems with JSON using RVM, but if you do so, you'll need this
 gem.
 
 The bot needs *users.rb* file with your account user and password, there is a

@@ -1,7 +1,9 @@
 require 'net/http';
 require 'net/https'
 require 'uri'
+require 'rubygems'
 require 'json'
+require 'timeout'
 
 class Navigator
 	def initialize
@@ -57,30 +59,32 @@ class Navigator
 	end
 
 	def go(url, data = nil, limit = 10)
-		uri = URI.parse url
-		http = Net::HTTP.new uri.host, uri.port
-		if uri.scheme == 'https' then
-			http.use_ssl = true
-			http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		end
-		if data.nil? then
-			request = Net::HTTP::Get.new uri.request_uri
-		else
-			request = Net::HTTP::Post.new uri.request_uri
-			if data.respond_to? 'each'
-				request.set_form_data data
-			else
-				request.body = data
-				request['Content-Type'] = 'application/json'
+		Timeout::timeout(30) {
+			uri = URI.parse url
+			http = Net::HTTP.new uri.host, uri.port
+			if uri.scheme == 'https' then
+				http.use_ssl = true
+				http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 			end
-		end
-		cookies = get_cookies uri
-		request.add_field 'cookie', cookies unless cookies.empty?
-		response = http.request request
-		cookies = response.get_fields('set-cookie')
-		save_cookies(uri, cookies) unless cookies.nil?
-		response = go(response['location'], nil, limit - 1) if response.is_a? Net::HTTPRedirection
-		response
+			if data.nil? then
+				request = Net::HTTP::Get.new uri.request_uri
+			else
+				request = Net::HTTP::Post.new uri.request_uri
+				if data.respond_to? 'each'
+					request.set_form_data data
+				else
+					request.body = data
+					request['Content-Type'] = 'application/json'
+				end
+			end
+			cookies = get_cookies uri
+			request.add_field 'cookie', cookies unless cookies.empty?
+			response = http.request request
+			cookies = response.get_fields('set-cookie')
+			save_cookies(uri, cookies) unless cookies.nil?
+			response = go(response['location'], nil, limit - 1) if response.is_a? Net::HTTPRedirection
+			response
+		}
 	end
 
 	def to_s

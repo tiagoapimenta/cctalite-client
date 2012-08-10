@@ -70,3 +70,5 @@ $users.each { |user|
 		# TODO: find weakest near enemy and invoke battle
 	end
 }
+
+puts 'DONE'
