@@ -5,7 +5,7 @@ require './game.rb'
 
 $building_order = [5, 32, 1, 16, 10, 42, 40, 34, 35, 36, 24, 2, 81, 82]
 $attack_unit_order = [81, 88, 86, 87, 98, 94, 92]
-$defense_unit_order = [102, 98, 101, 106]
+$defense_unit_order = [102, 98, 100, 101, 106]
 $building_defense_units = [101, 106]
 
 $users.each { |user|

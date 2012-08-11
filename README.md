@@ -77,6 +77,7 @@ Pardon me because I don't know the original name of them:
 *Defense Units*:
 
 * 98. Hunter;
+* 100. Pitbull;
 * 101. Guardian Cannon;
 * 102. MG Nest;
 * 106. Wall;
@@ -87,5 +88,5 @@ Pardon me because I don't know the original name of them:
 * 129. Cristals (30.000);
 * 137. Energy (7.000);
 * 138. Energy (15.000);
-* 149. Credits (?);
+* 149. Credits (110.000);
 * 154. Command Points (12);
