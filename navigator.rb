@@ -8,6 +8,7 @@ require 'timeout'
 class Navigator
 	def initialize
 		@cookies = {}
+		@requests = {}
 	end
 
 	def save_cookies(uri, cookies)
@@ -59,12 +60,18 @@ class Navigator
 	end
 
 	def go(url, data = nil, limit = 10)
-		Timeout::timeout(30) {
+		Timeout::timeout(60) {
 			uri = URI.parse url
-			http = Net::HTTP.new uri.host, uri.port
-			if uri.scheme == 'https' then
-				http.use_ssl = true
-				http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+			request_key = "#{uri.scheme}:#{uri.host}:#{uri.port}"
+			if @requests.key? request_key then
+				http = @requests[request_key]
+			else
+				http = Net::HTTP.new uri.host, uri.port
+				if uri.scheme == 'https' then
+					http.use_ssl = true
+					http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+				end
+				@requests[request_key] = http
 			end
 			if data.nil? then
 				request = Net::HTTP::Get.new uri.request_uri

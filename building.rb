@@ -11,7 +11,7 @@ class Building
 		@type = info['t']
 		@x = info['x']
 		@y = info['y']
-		@collectable = info['rv'] != 0 # TODO: How to know when is it collectable?
+		@collectable = true #info['rv'] != 0 # TODO: How to know when is it collectable?
 	end
 
 	def can_collect?
