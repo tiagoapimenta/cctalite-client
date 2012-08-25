@@ -61,9 +61,9 @@ Pardon me because I don't know the original name of them:
 * 36. Airport;
 * 40. Defense Headquarter;
 * 42. Defense Institute;
+* 80. Falcon Support;
 * 81. Ion Cannon;
 * 82. Skystrike Support;
-* ?. Falcon Support;
 
 *Attack Units*:
 
@@ -77,6 +77,7 @@ Pardon me because I don't know the original name of them:
 *Defense Units*:
 
 * 98. Hunter;
+* 99. Guardian;
 * 100. Pitbull;
 * 101. Guardian Cannon;
 * 102. MG Nest;

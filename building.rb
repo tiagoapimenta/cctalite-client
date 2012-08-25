@@ -11,7 +11,7 @@ class Building
 		@type = info['t']
 		@x = info['x']
 		@y = info['y']
-		@collectable = true #info['rv'] != 0 # TODO: How to know when is it collectable?
+		@collectable = !([1, 5, 16, 24, 34, 35, 36, 40, 42, 80, 81, 82].include? @type) # or include 2, 10, 32 #info['rv'] != 0 # TODO: How to know when is it collectable?
 	end
 
 	def can_collect?

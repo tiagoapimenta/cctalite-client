@@ -220,6 +220,8 @@ class Game
 
 		@login_session = res.body[/sessionId.*>/][/value=".*"/][7..-2]
 		@url_ajax = res.body[/action=".*"/].gsub(/method="POST"/i, '').strip[8..-2].gsub(/^http\:/i, 'https:').split('/')[0..-2].join('/') + '/Presentation/Service.svc/ajaxEndpoint/'
+		@navigator.go 'https://prodgame09.alliances.commandandconquer.com/45/index.aspx'
+		sleep 5
 		@logged = true
 	end
 
