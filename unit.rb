@@ -1,7 +1,7 @@
 class Unit
 	# TODO: types
 
-	attr_reader :id, :level, :type, :x, :y
+	attr_reader :id, :level, :type, :x, :y, :hp, :max_hp
 
 	def initialize(game, city, info)
 		@game = game
@@ -11,9 +11,11 @@ class Unit
 		@type = info['ui']
 		@x = info['cx']
 		@y = info['cy']
+		@hp = info['h']
+		@max_hp = @game.calc_max_hp(@level, @game.data['units'][@id.to_s])
 	end
 
-	def attack?
+	def offensive?
 		@type < 96 # TODO: How to know if is it a offensive unit?
 	end
 
@@ -23,6 +25,10 @@ class Unit
 
 	def upgrade
 		@game.command 'UnitUpgrade', {'cityid' => @city.id, 'unitId' => @id}
+	end
+
+	def damaged?
+		@hp < @max_hp
 	end
 
 	def move(x, y)

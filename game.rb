@@ -9,7 +9,7 @@ require './alliance.rb'
 class Game
 	MAX_TRIES = 10
 
-	attr_reader :command_points
+	attr_reader :command_points, :data
 
 	def initialize(user, pass)
 		@navigator = Navigator.new
@@ -23,6 +23,10 @@ class Game
 
 	def me
 		@me ||= Player.new self, player_info, true
+	end
+
+	def server
+		@server ||= server_info
 	end
 
 	def cities
@@ -201,6 +205,18 @@ class Game
 		end
 	end
 
+	def calc_max_hp(level, data)
+		return 0 if level < 1 || data.nil?
+		d = level > 1 && server['ulufcv'] ** (level - 1) || 1
+		e = data['lp']
+		f = 1
+		if data['f'] == 3 then
+			f = level / 10 if data['pt'] == 4 && level <= 10
+			e *= 1.1 if server['nuu']
+		end
+		(f * e * d + 0.5).floor
+	end
+
 	def to_s
 		'#<Game>'
 	end
@@ -216,12 +232,33 @@ class Game
 
 		# TODO: Perhaps I should use nokogiri instead, I'll think about it later.
 		raise 'Login or password wrong.' if @navigator.go('https://alliances.commandandconquer.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}).body.include? 'loginForm'
-		res = @navigator.go 'https://alliances.commandandconquer.com/pt_BR/game/launch'
+		res = @navigator.go 'https://alliances.commandandconquer.com/game/launch'
 
 		@login_session = res.body[/sessionId.*>/][/value=".*"/][7..-2]
 		@url_ajax = res.body[/action=".*"/].gsub(/method="POST"/i, '').strip[8..-2].gsub(/^http\:/i, 'https:').split('/')[0..-2].join('/') + '/Presentation/Service.svc/ajaxEndpoint/'
-		@navigator.go 'https://prodgame09.alliances.commandandconquer.com/45/index.aspx'
-		sleep 5
+		res = @navigator.go 'https://prodgame09.alliances.commandandconquer.com/45/index.aspx'
+		lang = res.body[(/Language ?= ?\"[a-z]*\";/)][(/\"[a-z]*\"/)][1..-2]
+		lang = 'en' if lang.nil? or lang.empty?
+		perforce = res.body[/PerforceChangelist ?= ?[0-9]*;/][18..-2].strip[1..-1].strip
+		perforce = '' if perforce.nil?
+		file = "cache/game_#{lang}#{perforce}.json"
+		if File.exist? file then
+			@data = JSON.parse(File.read(file))
+		else
+			Dir.mkdir 'cache' unless File.directory? 'cache'
+			res = @navigator.go "https://prodgame09.alliances.commandandconquer.com/45#{perforce.empty? && '' || "/#{perforce}"}/data_#{lang}.html"
+			data = ''
+			res.body.scan(/<script[^>]*>.*?<\/script>/m) { |m|
+				m.slice! /^<script[^>]*>/
+				m = m[0..-10]
+				data += m[3..-4].gsub("\\\"", "\"").gsub("\\\'", "\'").gsub("\\\\", "\\") if m.start_with? 's("' and m.end_with? '");'
+			}
+			@data = JSON.parse(data[/{.*?};/][0..-2])
+			f = File.new file, 'w'
+			f.write @data.to_json
+			f.close
+		end
+		# sleep 5
 		@logged = true
 	end
 
@@ -261,6 +298,17 @@ class Game
 	def player_info
 		open_session if @session.nil?
 		res = ajax 'GetPlayerInfo', {'session' => @session}
+		if res.is_a? Hash then
+			res
+		else
+			open_session
+			player_info
+		end
+	end
+
+	def server_info
+		open_session if @session.nil?
+		res = ajax 'GetServerInfo', {'session' => @session}
 		if res.is_a? Hash then
 			res
 		else
@@ -329,6 +377,7 @@ class Game
 			when 'OCITY'
 				find_city data
 			else
+				# INV -> inventary
 				# TODO: log unknown commands
 		end
 	end

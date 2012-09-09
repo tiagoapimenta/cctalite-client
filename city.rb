@@ -4,8 +4,8 @@ require './unit.rb'
 class City
 	REPAIR_BUILDINGS = 1
 	REPAIR_DEFENSE   = 2
-	REPAIR_ATTACK    = 4
-	REPAIR_ALL       = REPAIR_BUILDINGS | REPAIR_DEFENSE | REPAIR_ATTACK
+	REPAIR_OFFENSE   = 4
+	REPAIR_ALL       = REPAIR_BUILDINGS | REPAIR_DEFENSE | REPAIR_OFFENSE
 
 	attr_reader :id, :name, :level, :owner_id, :x, :y
 	def initialize(game, info)
@@ -35,30 +35,38 @@ class City
 		@units
 	end
 
-	def attack_units
-		units.select { |unit| unit.attack? }
+	def offensive_units
+		units.select { |unit| unit.offensive? }
 	end
 
-	def defense_units
-		units.reject { |unit| unit.attack? }
+	def defensive_units
+		units.reject { |unit| unit.offensive? }
 	end
 
 	def destroyed?
 		false # TODO: How to know when is it destroyed?
 	end
 
-	def need_repair?
-		true # TODO: How to know when does it need to repair?
+	def damaged?
+		!(buildings.index { |building| building.damaged? }.nil?) || !(units.index { |unit| unit.damaged? }.nil?)
+	end
+
+	def can_collect?
+		!buildings.index { |building| building.can_collect? }.nil?
 	end
 
 	def move(x, y)
 		@game.command('CityMove', {'cityId' => @id, 'coordX' => x, 'coordY' => y})
 	end
 
+	def collect_all()
+		@game.command('CollectAllResources', {'cityid' => @id})
+	end
+
 	def repair(mode = REPAIR_ALL, entity = nil)
-		raw_repair 1, (entity.nil? && -1 || entity.id) unless mode & REPAIR_BUILDINGS == 0
-		raw_repair 5, (entity.nil? && -1 || entity.id) unless mode & REPAIR_DEFENSE == 0
-		raw_repair 4, (entity.nil? && -1 || entity.id) unless mode & REPAIR_ATTACK == 0
+		raw_repair 1, (entity.nil? && -1 || entity.id) unless mode & REPAIR_BUILDINGS == 0 || buildings.index { |building| building.damaged? }.nil?
+		raw_repair 5, (entity.nil? && -1 || entity.id) unless mode & REPAIR_DEFENSE == 0 || defensive_units.index { |unit| unit.damaged? }.nil?
+		raw_repair 4, (entity.nil? && -1 || entity.id) unless mode & REPAIR_OFFENSE == 0 || offensive_units.index { |unit| unit.damaged? }.nil?
 	end
 
 	def crete_building(type, x, y)

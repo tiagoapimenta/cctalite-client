@@ -1,7 +1,7 @@
 class Building
 	# TODO: types
 
-	attr_reader :id, :level, :type, :x, :y
+	attr_reader :id, :level, :type, :x, :y, :hp, :max_hp
 
 	def initialize(game, city, info)
 		@game = game
@@ -11,6 +11,15 @@ class Building
 		@type = info['t']
 		@x = info['x']
 		@y = info['y']
+		@hp = info['hp']
+		data = nil
+		@game.data['units'].each_value { |value|
+			if value['tl'] == @type then
+				data = value
+				break
+			end
+		}
+		@max_hp = @game.calc_max_hp(@level, data)
 		@collectable = !([1, 5, 16, 24, 34, 35, 36, 40, 42, 80, 81, 82].include? @type) # or include 2, 10, 32 #info['rv'] != 0 # TODO: How to know when is it collectable?
 	end
 
@@ -28,6 +37,10 @@ class Building
 
 	def upgrade
 		@game.command 'UpgradeBuilding', {'cityid' => @city.id, 'posX' => @x, 'posY' => @y, 'isPayd' => true}
+	end
+
+	def damaged?
+		@hp < @max_hp
 	end
 
 	def move(x, y)

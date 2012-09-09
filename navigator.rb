@@ -61,47 +61,45 @@ class Navigator
 
 	def go(url, data = nil, limit = 10, again = true)
 		request_key = nil
-		begin
-			Timeout::timeout(120) {
-				uri = URI.parse url
-				request_key = "#{uri.scheme}:#{uri.host}:#{uri.port}"
-				if @requests.key? request_key then
-					http = @requests[request_key]
-				else
-					http = Net::HTTP.new uri.host, uri.port
-					if uri.scheme == 'https' then
-						http.use_ssl = true # TODO: record certify
-						http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-					end
-					@requests[request_key] = http
-				end
-				if data.nil? then
-					request = Net::HTTP::Get.new uri.request_uri
-				else
-					request = Net::HTTP::Post.new uri.request_uri
-					if data.respond_to? 'each'
-						request.set_form_data data
-					else
-						request.body = data
-						request['Content-Type'] = 'application/json'
-					end
-				end
-				request['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:14.0) Gecko/20100101 Firefox/14.0.1'
-				cookies = get_cookies uri
-				request.add_field 'cookie', cookies unless cookies.empty?
-				response = http.request request
-				cookies = response.get_fields('set-cookie')
-				save_cookies(uri, cookies) unless cookies.nil?
-				response = go((uri + response['location']).to_s, nil, limit - 1) if response.is_a? Net::HTTPRedirection
-				response
-			}
-		rescue
-			if again then
-				@requests.delete request_key unless request_key.nil?
-				go url, data, limit, false
+		Timeout::timeout(120) {
+			uri = url.is_a?(URI) && url || URI.parse(url)
+			request_key = "#{uri.scheme}:#{uri.host}:#{uri.port}"
+			if @requests.key? request_key then
+				http = @requests[request_key]
 			else
-				nil
+				http = Net::HTTP.new uri.host, uri.port
+				if uri.scheme == 'https' then
+					http.use_ssl = true # TODO: record certify
+					http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+				end
+				@requests[request_key] = http
 			end
+			if data.nil? then
+				request = Net::HTTP::Get.new uri.request_uri
+			else
+				request = Net::HTTP::Post.new uri.request_uri
+				if data.respond_to? 'each'
+					request.set_form_data data
+				else
+					request.body = data
+					request['Content-Type'] = 'application/json'
+				end
+			end
+			request['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:14.0) Gecko/20100101 Firefox/14.0.1'
+			cookies = get_cookies uri
+			request.add_field 'cookie', cookies unless cookies.empty?
+			response = http.request request
+			cookies = response.get_fields('set-cookie')
+			save_cookies(uri, cookies) unless cookies.nil?
+			response = go(uri + response['location'], nil, limit - 1) if response.is_a? Net::HTTPRedirection
+			response
+		}
+	rescue
+		if again then
+			@requests.delete request_key unless request_key.nil?
+			go url, data, limit, false
+		else
+			nil
 		end
 	end
 
