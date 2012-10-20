@@ -252,7 +252,7 @@ class Game
 				m = m[0..-10]
 				data += m[3..-4].gsub("\\\"", "\"").gsub("\\\'", "\'").gsub("\\\\", "\\") if m.start_with? 's("' and m.end_with? '");'
 			}
-			@data = JSON.parse(data[/{.*?};/][0..-2])
+			@data = JSON.parse(data[/\{.*?\}\;/][0..-2])
 			f = File.new file, 'w'
 			f.write @data.to_json
 			f.close
