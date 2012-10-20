@@ -229,9 +229,8 @@ class Game
 		@unallocated_cities = {}
 		@session = nil
 		@command_points = 0
-
 		# TODO: Perhaps I should use nokogiri instead, I'll think about it later.
-		raise 'Login or password wrong.' if @navigator.go('https://alliances.commandandconquer.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}).body.include? 'loginForm'
+		raise 'Login or password wrong.' unless @navigator.go('https://www.tiberiumalliances.com/j_security_check', {'spring-security-redirect' => '', 'id' => '', 'timezone' => '-3', 'j_username' => @user, 'j_password' => @pass, '_web_remember_me' => ''}).body.include? 'playnow-btn'
 		res = @navigator.go 'https://alliances.commandandconquer.com/game/launch'
 
 		@login_session = res.body[/sessionId.*>/][/value=".*"/][7..-2]

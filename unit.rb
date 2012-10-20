@@ -12,7 +12,7 @@ class Unit
 		@x = info['cx']
 		@y = info['cy']
 		@hp = info['h']
-		@max_hp = @game.calc_max_hp(@level, @game.data['units'][@id.to_s])
+		@max_hp = @game.calc_max_hp(@level, @game.data['units'][@type.to_s])
 	end
 
 	def offensive?

@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
-require './users.rb'
 require './game.rb'
 
+require './users.rb'
+#require './evolution_rules.rb'
+
 $building_order = [5, 32, 1, 16, 10, 42, 40, 34, 35, 36, 24, 2, 81, 82, 80]
-$attack_unit_order = [81, 88, 86, 87, 98, 94, 92]
+$attack_unit_order = [81, 88, 86, 87, 98, 94, 92, 91]
 $defense_unit_order = [102, 98, 100, 99, 101, 106]
 $building_defense_units = [101, 106]
 
@@ -20,6 +22,10 @@ $building_levels = {
 	80 => -3, # support
 	81 => -3, # support
 	82 => -3, # support
+}
+
+$building_levels = {
+	10 => -3
 }
 
 $users.each { |user|
@@ -69,7 +75,6 @@ $users.each { |user|
 			puts "Upgrade Attack Unit #{weakest_unit.x}x#{weakest_unit.y} #{weakest_unit.level} (#{weakest_unit.type})"
 		}
 
-=begin
 		2.times { |time|
 			include_buildings = time != 0
 
@@ -82,7 +87,6 @@ $users.each { |user|
 
 			puts "Upgrade Defense Unit #{weakest_unit.x}x#{weakest_unit.y} #{weakest_unit.level} (#{weakest_unit.type})"
 		}
-=end
 	}
 
 	if game.command_points > 80 then
