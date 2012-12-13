@@ -6,8 +6,11 @@ require './users.rb'
 #require './evolution_rules.rb'
 
 $building_order = [5, 32, 1, 16, 10, 42, 40, 34, 35, 36, 24, 2, 81, 82, 80]
-$attack_unit_order = [81, 88, 86, 87, 98, 94, 92, 91]
+$building_order += [14, 33, 11, 18, 15, 43, 41, 37, 38, 39, 30, 12]
+$attack_unit_order = [81, 88, 86, 90, 87, 89, 98, 94, 93, 92, 91]
+$attack_unit_order += [140, 143, 138, 139, 146, 142]
 $defense_unit_order = [102, 98, 100, 99, 101, 106]
+$defense_unit_order += [174, 163]
 $building_defense_units = [101, 106]
 
 $building_levels = {
@@ -25,12 +28,18 @@ $building_levels = {
 }
 
 $building_levels = {
-	10 => -3
+#	10 => -3
 }
 
+$stdout.sync = true
+
 $users.each { |user|
+	puts "User #{user['name']}"
+
 	game = Game.new user['name'], user['pass']
 	puts "Player #{game.me.name}"
+
+	can_collect_all = game.cities.count > 1
 
 	game.cities.each { |city|
 		puts "City #{city.name}"
@@ -42,7 +51,13 @@ $users.each { |user|
 			puts "Move to #{x}x#{y}" if city.move x, y
 		end
 
-		puts 'All resources collected' if city.can_collect? && city.collect_all
+		if can_collect_all then
+			puts 'All resources collected' if city.can_collect? && city.collect_all
+		else
+			city.buildings.each { |building|
+				puts "Collected #{building.x}x#{building.y} (#{building.type})" if building.can_collect? && building.collect
+			}
+		end
 
 		puts 'City repaired' if city.damaged? && city.repair # TODO: repeat if is until in battle
 

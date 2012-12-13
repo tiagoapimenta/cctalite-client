@@ -20,7 +20,7 @@ class Building
 			end
 		}
 		@max_hp = @game.calc_max_hp(@level, data)
-		@collectable = !([1, 5, 16, 24, 34, 35, 36, 40, 42, 80, 81, 82].include? @type) # or include 2, 10, 32 #info['rv'] != 0 # TODO: How to know when is it collectable?
+		@collectable = ([2, 10, 32, 12, 15, 33].include? @type) # TODO: How to know when is it collectable?
 	end
 
 	def can_collect?

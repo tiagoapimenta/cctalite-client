@@ -234,18 +234,21 @@ class Game
 		res = @navigator.go 'https://alliances.commandandconquer.com/game/launch'
 
 		@login_session = res.body[/sessionId.*>/][/value=".*"/][7..-2]
-		@url_ajax = res.body[/action=".*"/].gsub(/method="POST"/i, '').strip[8..-2].gsub(/^http\:/i, 'https:').split('/')[0..-2].join('/') + '/Presentation/Service.svc/ajaxEndpoint/'
-		res = @navigator.go 'https://prodgame09.alliances.commandandconquer.com/45/index.aspx'
-		lang = res.body[(/Language ?= ?\"[a-z]*\";/)][(/\"[a-z]*\"/)][1..-2]
+		page = res.body[/action=".*"/].gsub(/method="POST"/i, '').strip[8..-2].gsub(/^http\:/i, 'https:').split('/')[0..-2].join('/')
+		@url_ajax = "#{page}/Presentation/Service.svc/ajaxEndpoint/"
+		res = @navigator.go "#{page}/index.aspx"
+		lang = res.body[(/Language ?= ?\"[a-zA-Z_]*\";/)][(/\"[a-zA-Z_]*\"/)][1..-2]
 		lang = 'en' if lang.nil? or lang.empty?
 		perforce = res.body[/PerforceChangelist ?= ?[0-9]*;/][18..-2].strip[1..-1].strip
 		perforce = '' if perforce.nil?
+		lang = lang.split('_', 2)[1].downcase if lang.include? '_'
+
 		file = "cache/game_#{lang}#{perforce}.json"
 		if File.exist? file then
 			@data = JSON.parse(File.read(file))
 		else
 			Dir.mkdir 'cache' unless File.directory? 'cache'
-			res = @navigator.go "https://prodgame09.alliances.commandandconquer.com/45#{perforce.empty? && '' || "/#{perforce}"}/data_#{lang}.html"
+			res = @navigator.go "#{page}#{perforce.empty? && '' || "/#{perforce}"}/data_#{lang}.html"
 			data = ''
 			res.body.scan(/<script[^>]*>.*?<\/script>/m) { |m|
 				m.slice! /^<script[^>]*>/
